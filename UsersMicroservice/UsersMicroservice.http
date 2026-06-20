@@ -1,0 +1,20 @@
+@UsersMicroservice_HostAddress = https://localhost:7273
+
+###
+POST {{UsersMicroservice_HostAddress}}/Register/User
+Content-type: application/json
+
+{
+    "username": "test@firma.pl",
+    "password": "abcABC999hfsdfhsdfskd",
+    "firstName": "Henryk",
+    "lastName": "Bąk"
+}
+
+#### Pobranie userów
+GET {{UsersMicroservice_HostAddress}}/Users
+Accept: application/json
+
+#### Pobranie konkretnego usera
+GET {{UsersMicroservice_HostAddress}}/Users/4
+Accept: application/json

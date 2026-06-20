@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Users/">
+    <Project Path="UsersMicroservice.Models/UsersMicroservice.Models.csproj" />
+    <Project Path="UsersMicroservice/UsersMicroservice.csproj" />
+  </Folder>
+</Solution>
