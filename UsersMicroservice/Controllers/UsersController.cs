@@ -1,47 +1,36 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Security.Claims;
 using UsersMicroservice.ApplicationContext;
+using UsersMicroservice.ApplicationContext.Models;
+using UsersMicroservice.Services;
 
 namespace UsersMicroservice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
-        private readonly DocumentsContext db;
-        public UsersController(DocumentsContext db)
+        //private readonly DocumentsContext db;
+        private readonly UsersService usersService;
+
+        public UsersController(/*DocumentsContext db, */UsersService usersService)
         {
-            this.db = db;
+            //this.db = db;
+            this.usersService = usersService;
         }
 
         [HttpGet("")]
-        public ActionResult<List<Models.Response.User>> GetUsers()
+        public async Task<ActionResult<List<Models.Response.User>>> GetUsers()
         {
-            //TODO: Pobrać z bazy danych
+            string role = User.FindFirst(ClaimTypes.Role)?.Value;
+            string id = User.FindFirst("user_id")?.Value;
 
-            List<Models.Response.User> users = new List<Models.Response.User>()
-            {
-                new Models.Response.User()
-                {
-                    Id = 1,
-                    FirstName = "Adam",
-                    LastName = "Słodowy",
-                    Username = "adam@firma.pl"
-                },
-                new Models.Response.User() {
-                     Id = 2,
-                    FirstName = "Bartłomiej",
-                    LastName = "Piwo",
-                    Username = "bartlomiej@firma.pl"
-                },
-                new Models.Response.User() {
-                     Id = 3,
-                    FirstName = "Cezary",
-                    LastName = "Szybki",
-                    Username = "cezary@firma.pl"
-                }
-            };
+            List<Models.Response.User> users = await usersService.Users(int.Parse(id));
 
             return Ok(users);
 
@@ -50,24 +39,23 @@ namespace UsersMicroservice.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Response.User>> GetUser(int id)
         {
-            //TODO: Pobrać z bazy danych
-
-            var dbUser = await db.Users
-                .Include(x=>x.Company)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            Models.Response.User found = new Models.Response.User()
+            Models.Response.User found = null;
+            try
             {
-                Id = dbUser.Id,
-                FirstName = dbUser.FirstName,
-                LastName = dbUser.LastName,
-                Username = dbUser.Username,
-                Company = new Models.Response.Company()
-                {
-                    Name = dbUser.Company.Name
-                }
-        
-            };
+                found = await usersService.UserById(id);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized();
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500);
+            }
 
             return Ok(found);
 

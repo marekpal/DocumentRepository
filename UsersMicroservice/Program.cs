@@ -1,9 +1,34 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using UsersMicroservice.ApplicationContext;
+using UsersMicroservice.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+string key = "coś długiego jako klucz szyfrowania. Musim mieć 32 znaki";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}
+)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+    );
 
 builder.Services.AddDbContext<UsersMicroservice.ApplicationContext.DocumentsContext>(options =>
     options.UseSqlServer(
@@ -11,6 +36,8 @@ builder.Services.AddDbContext<UsersMicroservice.ApplicationContext.DocumentsCont
 ));
 
 builder.Services.AddControllers();
+builder.Services.AddTransient<UsersService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
 

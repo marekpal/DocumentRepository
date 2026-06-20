@@ -13,8 +13,19 @@ Content-type: application/json
 
 #### Pobranie userów
 GET {{UsersMicroservice_HostAddress}}/Users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRhbSBUb2tlbm93eSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwidXNlcl9pZCI6IjYiLCJleHAiOjE3ODE5OTU2OTV9.TJs5sRnf9dELoDS0gFMIldlaELne5E9K02mQYzW3ERA
 Accept: application/json
 
 #### Pobranie konkretnego usera
 GET {{UsersMicroservice_HostAddress}}/Users/4
 Accept: application/json
+
+
+### Logowanie do systemu
+POST {{UsersMicroservice_HostAddress}}/Authentication/Login
+Content-type: application/json
+
+{
+    "username": "usr2",
+    "password": "pass2"
+}
